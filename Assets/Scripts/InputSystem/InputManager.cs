@@ -31,6 +31,7 @@ public class InputManager : MonoBehaviour, InputSystem_Actions.IUIActions
     {
         if (context.phase == InputActionPhase.Performed)
         {
+            AudioManager.Instance.PlayUIClick();
             GameManager.instance.DropIngredient();
         }
 

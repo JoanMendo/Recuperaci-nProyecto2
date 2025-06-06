@@ -63,6 +63,7 @@ public class Ingredient : MonoBehaviour
     public void CombineIngredients(Ingredient ingredient1, Ingredient ingredient2)
     {
         GameObject combinedObject = Instantiate(combinationPrefab, (ingredient1.transform.position + ingredient2.transform.position) / 2, Quaternion.identity);
+        AudioManager.Instance.PlayIngredientMerge();
         Ingredient combinedIngredient = combinedObject.GetComponent<Ingredient>();
         foreach (Modifier modifier in ingredient1.modifiers.modifiers)
         {
