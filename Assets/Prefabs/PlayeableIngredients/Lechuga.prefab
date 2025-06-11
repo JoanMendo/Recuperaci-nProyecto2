@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientType: 6
-  combinationPrefab: {fileID: 0}
+  combinationPrefab: {fileID: 8122143296212497606, guid: e17df1bde1b5be742b8d47de4a427f6b, type: 3}
   bouncyMaterial: {fileID: 13400000, guid: 733e8b04a5b613b4fb0ac6c5cd845aad, type: 2}
   metalMaterial: {fileID: 2100000, guid: 92dfa93669d4f3246b37e54ee558aecb, type: 2}
   slimyMaterial: {fileID: 2100000, guid: e7a18a21441ed884ab290f7671195e11, type: 2}
