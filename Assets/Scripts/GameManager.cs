@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.VisualScripting;
 using System;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class TipoCantidad
@@ -19,9 +20,6 @@ public class GameManager : MonoBehaviour
 
     public List<GameObject> allIngredientsList = new List<GameObject>();
     public List<GameObject> allDisplayIngredientsList = new List<GameObject>();
-
-    // Este prefab servirá como “contenedor” de la lista de ingredientes restantes.
-    // No modificaremos directamente su escala en el Asset, sino sobre instancias.
     public GameObject remainingIngredientsPrefab;
 
     public GameObject currentIngredient;
@@ -35,13 +33,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<TipoCantidad> ingredientesEnCaja = new List<TipoCantidad>();
     [SerializeField] private List<TipoCantidad> remainingIngredientsList = new List<TipoCantidad>();
 
-    // Lista para mantener referencia a los ingredientes mostrados y sus textos
-    private List<GameObject> displayedIngredients = new List<GameObject>();
 
-    // ---- Novedades para mostrar texto 3D de cantidad faltante ----
-    // Para almacenar la escala original del prefab (base para cálculos):
+      private List<GameObject> displayedIngredients = new List<GameObject>();
+
     private Vector3 originalRemainingScale;
-    // Para referenciar la instancia actual del contenedor de ingredientes restantes:
+
+
     private GameObject remainingIngredientsContainerInstance;
 
     [Header("Configuración del texto 3D para cantidad faltante")]
@@ -54,11 +51,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Color countTextColor = Color.black;
     [Tooltip("Material opcional para el TextMesh. Si no se asigna, se usará el material por defecto.")]
     [SerializeField] private Material countTextMaterial = null;
-    // ---------------------------------------------------------------
-
-    // Rotación fija de todos los textos: (0,45,0)
-    private readonly Vector3 textFixedEuler = new Vector3(0f, 45f, 0f);
-
+  
     public void Awake()
     {
         if (instance == null)
@@ -138,10 +131,10 @@ public class GameManager : MonoBehaviour
 
     public void CheckWinConditions()
     {
-        // Limpiar modelos y textos previos de ingredientes mostrados
+
         ClearDisplayedIngredients();
 
-        // Contar ingredientes en caja
+
         ingredientesEnCaja.Clear();
         foreach (IngredientType tipo in Enum.GetValues(typeof(IngredientType)))
         {
@@ -165,7 +158,6 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            // Calcular lista de ingredientes que faltan según winCondition
             remainingIngredientsList.Clear();
             foreach (TipoCantidad winIngredient in winCondition)
             {
@@ -180,7 +172,7 @@ public class GameManager : MonoBehaviour
 
             int totalIngredientesFaltantes = remainingIngredientsList.Count;
 
-            // Destruir la instancia previa del contenedor de ingredientes restantes, si existe
+
             if (remainingIngredientsContainerInstance != null)
             {
                 Destroy(remainingIngredientsContainerInstance);
@@ -189,15 +181,12 @@ public class GameManager : MonoBehaviour
 
             if (totalIngredientesFaltantes > 0)
             {
-                // Instanciar un nuevo contenedor a partir del prefab
                 remainingIngredientsContainerInstance = Instantiate(remainingIngredientsPrefab);
 
-                // Ajustar la escala de la instancia según la cantidad de ingredientes faltantes,
-                // usando la escala original como base, para evitar acumulaciones de escala.
-                float newScaleY = originalRemainingScale.y * (totalIngredientesFaltantes / 4f);
+                 float newScaleY = originalRemainingScale.y * (totalIngredientesFaltantes / 4f);
                 remainingIngredientsContainerInstance.transform.localScale = new Vector3(
                     originalRemainingScale.x,
-                    newScaleY,
+                    newScaleY/4f,
                     originalRemainingScale.z
                 );
 
@@ -205,14 +194,14 @@ public class GameManager : MonoBehaviour
                 Collider listCollider = remainingIngredientsContainerInstance.GetComponent<Collider>();
                 if (listCollider != null && remainingIngredientsList.Count > 0)
                 {
-                    // Reobtén bounds después de ajustar la escala, para usar el tamaño actualizado.
+  
                     Bounds bounds = listCollider.bounds;
                     float totalHeight = bounds.size.y;
                     float spacing = totalHeight / (remainingIngredientsList.Count + 1);
 
-                    // Pre-calcular la X y Z fijas para los textos, usando el centro del bounds + offset:
+   
                     float textX = bounds.center.x + textOffsetFromContainer.x;
-                    float textZ = bounds.center.z + textOffsetFromContainer.y; // usar Vector2 y por convención Y como Z offset
+                    float textZ = bounds.center.z + textOffsetFromContainer.y; 
 
                     float currentY = bounds.min.y + spacing;
 
@@ -224,35 +213,32 @@ public class GameManager : MonoBehaviour
 
                         if (ingredientPrefab != null)
                         {
-                            // Instanciar el prefab de display
-                            GameObject ingredientInstance = Instantiate(ingredientPrefab);
 
-                            // Posicionar el ingrediente dentro del collider con ajuste en X y Z:
+                              GameObject ingredientInstance = Instantiate(ingredientPrefab);
+
+    
                             Vector3 ingredientPos = new Vector3(
-                                bounds.center.x - 2.5f,
+                                bounds.center.x - 7.5f,
                                 currentY,
-                                bounds.center.z - 2.5f
+                                bounds.center.z - 1.5f
                             );
                             ingredientInstance.transform.position = ingredientPos;
-
-                            // Guardar referencia para luego destruirlo en la siguiente limpieza
                             displayedIngredients.Add(ingredientInstance);
 
-                            // --------- Instanciar texto 3D con la cantidad faltante, alineado en X/Z comunes ----------
                             int faltan = tipoCantidad.cantidad;
-                            if (faltan > 1)
+                            if (faltan > 0)
                             {
-                                int adicionales = faltan; // según lo que desees mostrar
+                                int adicionales = faltan; 
                                 GameObject textGO = new GameObject("RemainingCountText");
 
-                                // Posición world: aquí usamos las coordenadas fijas textX, currentY, textZ
+                             
                                 Vector3 textPosition = new Vector3(textX, currentY, textZ);
-                                textGO.transform.position = textPosition + new Vector3(5, -4, -5);
+                                textGO.transform.position = textPosition + new Vector3(3, -4, -3);
 
                                 // Rotación fija de (0, 45, 0)
-                                textGO.transform.rotation = Quaternion.Euler(textFixedEuler);
+                                textGO.transform.rotation = Quaternion.Euler(new Vector3(0f,45f,0f));
 
-                                // Añadir componente TextMesh
+
                                 TextMesh textMesh = textGO.AddComponent<TextMesh>();
                                 textMesh.text = "x" + adicionales;
                                 textMesh.fontSize = countTextFontSize;
@@ -260,7 +246,7 @@ public class GameManager : MonoBehaviour
                                 textMesh.fontStyle = FontStyle.Bold;
                                 textMesh.alignment = TextAlignment.Center;
                                 textMesh.anchor = TextAnchor.MiddleCenter;
-                                // Material si se asignó
+
                                 if (countTextMaterial != null)
                                 {
                                     MeshRenderer mr = textGO.GetComponent<MeshRenderer>();
@@ -270,34 +256,25 @@ public class GameManager : MonoBehaviour
                                     }
                                 }
 
-                                // Guardar referencia para luego destruirlo
+
                                 displayedIngredients.Add(textGO);
                             }
-                            // ------------------------------------------------------------------------------
-
-                            // Aumentar Y para el siguiente ingrediente
+                          
                             currentY += spacing;
                         }
-                        else
-                        {
-                            Debug.LogWarning($"No se encontró prefab en allDisplayIngredientsList para el tipo {tipoCantidad.tipo}");
-                        }
+                       
                     }
                 }
-                else
-                {
-                    if (listCollider == null)
-                        Debug.LogWarning("El prefab de remainingIngredientsPrefab no tiene Collider para calcular bounds.");
-                }
+             
+            }
+            else if (remainingIngredientsList.Count == 0)
+            {
+                SceneManager.LoadScene(3);
             }
         }
-        else
-        {
-            Debug.LogWarning("No se encontró BoxCollider en boxArea para CheckWinConditions.");
-        }
+
     }
 
-    // Método para limpiar los ingredientes mostrados anteriormente y sus textos
     private void ClearDisplayedIngredients()
     {
         foreach (GameObject go in displayedIngredients)

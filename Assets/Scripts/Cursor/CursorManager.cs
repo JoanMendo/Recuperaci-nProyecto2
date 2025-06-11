@@ -42,7 +42,7 @@ public class CursorManager : MonoBehaviour
     {
         Ray ray = mainCamera.ScreenPointToRay(cursorPosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 150f, groundLayerMask))
+        if (Physics.Raycast(ray, out RaycastHit hit, 350f, groundLayerMask))
         {
             canDropIngrdient = LayerMask.LayerToName(hit.collider.gameObject.layer) == "Interactuable";
 

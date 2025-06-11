@@ -17,8 +17,8 @@ public class IngredientsModifiers
     {
         new Modifier {modType = ModificatorsType.Small, isActive = false, chance = 10f },
         new Modifier {modType = ModificatorsType.Large, isActive = false, chance = 10f },
-        new Modifier { modType = ModificatorsType.Bouncy, isActive = false, chance = 50f },
-        new Modifier { modType = ModificatorsType.Heavy, isActive = false,chance = 50f },
+        new Modifier { modType = ModificatorsType.Bouncy, isActive = false, chance = 5f },
+        new Modifier { modType = ModificatorsType.Heavy, isActive = false,chance = 5f },
     };
 }
 

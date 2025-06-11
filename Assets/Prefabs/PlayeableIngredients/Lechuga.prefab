@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6367307441676783105}
   m_Layer: 0
   m_Name: Lechuga
-  m_TagString: Untagged
+  m_TagString: Ingredient
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
